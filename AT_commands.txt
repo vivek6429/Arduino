@@ -1,0 +1,139 @@
+ESP8266
+
+current baud rate 96000  changed from 115700
+Software serial has a limited baudrate of 19200.
+AT+ UART_DEF=<baudrate>,<databits>,<stopbits>,<parity>,<flow control>
+AT+UART_DEF=9600,8,1,0,0
+
+
+AT+GMR
+14:46:30.876 -> AT version:1.3.0.0(Jul 14 2016 18:54:01)
+14:46:30.876 -> SDK version:2.0.0(5a875ba)
+14:46:30.923 -> Farylink Technology Co., Ltd. v1.0.0.2
+14:46:30.969 -> May 11 2017 22:23:58
+14:46:30.969 -> OK
+
+print mac
+AT+CIPSTAMAC?
+
+reset module 
+AT+RST
+
+AT+GSLP - Enter deep-sleep mode refer
+
+#######ATE - Enable / Disable echo
+Variant 	Command 	Response 	Function
+Execute 	ATE0 	OK 	Disable echo (Doesn’t send back received command)
+Execute 	ATE1 	OK 	Enable echo (Sends back received command before response)
+
+
+#######AT+CWMODE - WIFI mode（station, AP, station + AP）
+Variant 	Command 	Response 	Function
+Test 	AT+CWMODE=? 	+CWMODE:(1-3) OK 	List valid modes
+Query 	AT+CWMODE? 	+CWMODE:mode OK 	Query AP’s info which is connect by ESP8266.
+Execute 	AT+CWMODE=mode 	OK 	Set AP’s info which will be connect by ESP8266.
+
+Parameters:
+
+    mode： An integer designating the mode of operation either 1, 2, or 3.
+    1 = Station mode (client)
+    2 = AP mode (host)
+    3 = AP + Station mode (Yes, ESP8266 has a dual mode!)
+
+########AT+CWLAP - Lists available APs
+Variant 	Command 	Response 	Function
+Set 	AT+CWLAP=ssid,mac,ch 	+CWLAP:ecn,ssid,rssi,mac OK 	Search available APs with specific conditions.
+Execute 	AT+CWLAP 	AT+CWLAP:ecn,ssid,rssi,mac OK 	Lists available Access Points.
+Parameters:
+
+    ecn:
+        0 = OPEN
+        1 = WEP
+        2 = WPA_PSK
+        3 = WPA2_PSK
+        4 = WPA_WPA2_PSK
+    ssid: String, SSID of AP
+    rssi: signal strength
+    mac: String, MAC address
+	
+
+########AT+CWJAP - Connect to AP
+
+Variant 	Command 	Response 	Function
+Query 	AT+CWJAP? 	+ CWJAP:ssid OK 	Prints the SSID of Access Point ESP8266 is connected to.
+Execute 	AT+CWJAP=ssid,pwd 	OK 	Commands ESP8266 to connect a SSID with supplied password.
+Parameters:
+
+    ssid：String, AP’s SSID
+    pwd：String, not longer than 64 characters
+
+Example：
+
+AT+CWJAP="my-test-wifi","1234test"  
+Example AT+CWJAP?：
+
++CWJAP:"my-test-wifi"  
+
+#########AT+CWQAP - Disconnect from AP
+Variant 	Command 	Response 	Function
+Execute 	AT+CWQAP 	OK 	Disconnect ESP8266 from the AP is currently connected to.
+
+	
+#########AT+CIPSTAMAC - Set MAC address of ESP8266 station
+Variant 	Command 	Response 	Function
+Query 	AT+CIPSTAMAC? 	+CIPSTAMAC:mac OK 	Print current MAC ESP8266’s address.
+Execute 	AT+CIPSTAMAC=mac 	OK 	Set ESP8266’s MAC address.
+Parameters:
+
+    mac： String, MAC address of the ESP8266 station.
+	
+#########AT+CIPSTA - Set IP address of ESP8266 station
+Variant 	Command 	Response 	Function
+Query 	AT+CIPSTA? 	+CIPSTA:ip OK 	Get IP address of ESP8266 station.
+Execute 	AT+CIPSTA=ip 	OK 	Set ip addr of ESP8266 station.
+Parameters:
+
+    ip： String, ip address of the ESP8266 station.
+
+Example:
+gr8tm@host-info.com
+AT+CIPSTA=”192.168.101.108”
+
+PODAPATTY
+LuttapyKuntham1
+
+######AT+CIPSTATUS - Information about connection
+Variant 	Command 	Response 	Function
+Test 	AT+CIPSTATUS=? 	OK 	 
+Execute 	AT+CIPSTATUS 	STATUS:status +CIPSTATUS:id,type,addr,port,tetype OK 	Get information about connection.
+Parameters:
+
+    status：
+        2: Got IP
+        3: Connected
+        4: Disconnected
+    id： id of the connection (0~4), for multi-connect
+    type： String, “TCP” or “UDP”
+    addr： String, IP address.
+    port： port number
+    tetype： 
+	0 = ESP8266 runs as a client
+	1 = ESP8266 runs as a server
+	
+	
+#include "ESP8266.h"
+#include <SoftwareSerial.h>
+
+SoftwareSerial mySerial(2,3); 
+ESP8266 wifi(mySerial);
+
+The connection should be like these:
+
+ESP8266_TX->RX(D3)
+ESP8266_RX->TX(D2)
+ESP8266_CH_PD->3.3V
+ESP8266_VCC->3.3V
+ESP8266_GND->GND
+
+
+   
